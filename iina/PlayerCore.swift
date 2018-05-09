@@ -908,6 +908,11 @@ class PlayerCore: NSObject {
       if #available(macOS 10.12.2, *) {
         touchBarSupport.setupTouchBarUI()
       }
+
+      if info.audioTracks.isEmpty {
+        mainWindow.muteButton.isHidden = true
+        mainWindow.volumeSlider.isHidden = true
+      }
     }
     // set initial properties for the first file
     if info.justLaunched {
@@ -939,6 +944,13 @@ class PlayerCore: NSObject {
   func trackListChanged() {
     getTrackInfo()
     getSelectedTracks()
+    let hide = info.audioTracks.isEmpty
+    if let mainWindow = mainWindow {
+      DispatchQueue.main.sync {
+        mainWindow.muteButton?.isHidden = hide
+        mainWindow.volumeSlider?.isHidden = hide
+      }
+    }
     let audioStatusWasUnkownBefore = currentMediaIsAudio == .unknown
     currentMediaIsAudio = checkCurrentMediaIsAudio()
     let audioStatusIsAvailableNow = currentMediaIsAudio != .unknown && audioStatusWasUnkownBefore
